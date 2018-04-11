@@ -1,3 +1,22 @@
+#!/usr/bin/env python3
+
+# ircecho.py
+# Copyright (C) 2011 : Robert L Szkutak II - http://robertszkutak.com
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 import sys
 import socket
 import string
@@ -6,6 +25,72 @@ import time
 import select
 import discord
 import asyncio
+from googleapiclient.discovery import build
+import pprint
+
+my_api_key = "<google-api-key>"
+my_cse_id = "<cse-id>"
+
+def google_search(search_term, api_key, cse_id, **kwargs):
+    service = build("customsearch", "v1", developerKey=api_key)
+    res = service.cse().list(q=search_term, cx=cse_id, **kwargs).execute()
+    return res['items']
+
+def searchimage(key):
+    try:
+        results = google_search(key, my_api_key, my_cse_id, searchType="image", safe="off")
+        retur = []
+        for result in results:
+            retur.append(result["link"])
+        pic = retur[random.randrange(0, len(retur) - 1)]
+        return pic
+    except:
+        return "Something weird happened there... Check the API key."
+
+def cleanup(file):
+    openfile = open(file, 'r')
+    contents = openfile.readlines()
+    num = 0
+    oldnum = 0
+    try:
+        for line in contents:
+            if num != 0:
+                if line[0] != num:
+                    if line[0].isnumeric() == False:
+                        line = ''
+                    print(line[0])
+            num += 1
+    except:
+        pass
+    try:
+        for line in contents:
+            for chunk in line.split():
+                if num != 0:
+                    if chunk != num:
+                        if chunk == oldnum:
+                            line == ''
+                        print(chunk)
+                try:
+                    oldnum = chunk
+                    num = num + 1
+                except:
+                    pass
+    except:
+        pass
+    try:
+        for worthless in range(0, len(contents)):
+            try:
+                contents.remove('')
+            except:
+                pass
+    except:
+        pass
+    openfile.close()
+    openfile = open(file, 'w')
+    newcontents = ''
+    for line in contents:
+        newcontents += line
+    openfile.write(newcontents)
 
 def pic(channel):
     if channel == 'general':
@@ -19,15 +104,17 @@ def pic(channel):
         picid = int(random.randrange(1, idnum + 1))
         openfile = open("pictures.txt", 'r')
         for i in range(0, picid + 1):
-            pic = openfile.readline()
+            pict = openfile.readline()
         openfile.close()
-        if "nsfw" not in pic.lower():
+        if "nsfw" not in pict.lower():
             show = 1
-        if str(idnum) == pic.replace('\n', ''):
+        if str(idnum) == pict.replace('\n', ''):
             show = 1
+        if len(pict.split()) == 1:
+            return pic(channel)
         if show == 1:
             break
-    return pic
+    return pict
 
 def add(link, user):
     openfile = open("picturesnum.txt", 'r')
@@ -121,6 +208,16 @@ def delete(num):
         openfile.write(link)
     return str(num) + ' has now been deleted'
 
+def rolldice(time, dice):
+    if int(time) == 1:
+        return random.randrange(1, int(dice))
+    else:
+        return random.randrange(1, int(dice)) + rolldice(int(time) - 1, dice)
+def printall():
+    openfile = open("pictures.txt", 'r')
+    contents = openfile.readlines()
+    return contents
+
 client = discord.Client()
 
 @client.event
@@ -165,8 +262,23 @@ async def on_message(message):
 
     elif message.content.startswith('!del'):
         await client.send_message(message.channel, delete(message.content[5:]))
-
-
+    elif message.content.startswith('!roll'):
+        dcon = message.content[6:].split('d')
+        await client.send_message(message.channel, rolldice(dcon[0], dcon[1]))
+    elif message.content.startswith('!simage'):
+        await client.send_message(message.channel, searchimage(message.content[8:]))
+    elif message.content.startswith('!website'):
+        website(message.content[9:])
+    elif message.content.startswith('!printall'):
+        await client.send_message(message.channel, "Please type the following: !Confirmation") #This is just to make sure someone didn't type the message by accident and cause the bot to spam.
+    elif message.content.startswith("!Confirmation"):
+        content = printall()
+        for items in content:
+            try:
+                await client.send_message(message.channel, items)
+                time.sleep(3)
+            except:
+                time.sleep(1)
         
 while True:
     try:
