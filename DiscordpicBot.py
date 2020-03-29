@@ -339,8 +339,6 @@ async def on_message(message):
             await message.channel.send( "Whoa there, that's too many dice for me to handle at one time. Could you split it up into reasonably sized chunks? Thanks!")
     elif message.content.startswith('!simage'):
         await message.channel.send( searchimage(message.content[8:]))
-    elif message.content.startswith('!website'):
-        website(message.content[9:])
     elif message.content.startswith('!printall'):
         await message.channel.send( "Please type the following: !Confirmation") #Honestly, This is just to make sure someone didn't type it by accident because too many calls will definitly make the bot spam
     elif message.content.startswith("!Confirmation"):
