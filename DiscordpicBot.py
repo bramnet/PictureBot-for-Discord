@@ -354,7 +354,7 @@ async def on_message(message):
             async with aiohttp.ClientSession() as session:
                 async with session.get(hydrustest(message.content[8:])) as resp:
                     if resp.status != 200:
-                        return await channel.send('Could not download file...')
+                        return await message.channel.send('Could not download file...')
                     data = io.BytesIO(await resp.read())
                     await message.channel.send(file=discord.File(data, 'image.png'))
         except: await message.channel.send("Uhm... That came back with a 0... Either that, or something's wrong")
