@@ -1,0 +1,9 @@
+Hi! <Custom name> here!
+If you don't want to mess with any of my commands, you can start right now with !pic and !simage.
+	-!pic will pick a picture at random that we have locally in our library.
+	-!simage will search the internet based on the keywords you say directly after the command.
+	-!add, followed by either a link and tags for the image will add the image to our library and I'll tell you what ID it is. (If you're uploading it directly, just say !add followed by the tags)
+	-!id will return the picture matching the ID number you give me
+	-!tag will choose a picture at random that matches the tag. If you want a picture from a specific user or from the source, you can specify that instead.
+That's everything image related. I have some maintence and fun commands, but you can ask my author for more details.
+Laters!
